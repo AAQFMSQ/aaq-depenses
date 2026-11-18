@@ -74,6 +74,15 @@
   .avis-fort .ico{flex:none;width:34px;height:34px;border-radius:50%;background:#C00000;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px}
   .avis-fort .tx small{display:block;font-weight:normal;font-size:13px;color:#7a1a00;margin-top:3px}
   input.km40{border:2px solid #C00000!important;background:#FFF1E6}
+  .pj-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:14px}
+  .pj{border:1px solid var(--ligne);border-radius:4px;background:#fff;padding:8px;display:flex;flex-direction:column;gap:6px}
+  .pj .vign{height:150px;background:#f1f3f6;border-radius:3px;display:flex;align-items:center;justify-content:center;overflow:hidden;font-weight:bold;color:var(--marine)}
+  .pj .vign img{max-width:100%;max-height:100%;object-fit:contain}
+  .pj .ligne{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--gris)}
+  .pj-vide{grid-column:1/-1;padding:18px;color:var(--gris);text-align:center;font-style:italic;border:1px dashed var(--ligne);border-radius:4px}
+  .etape{border:1px solid var(--ligne);border-radius:4px;padding:12px 16px;margin:12px 0;background:#fff}
+  .etape h3{margin:0 0 6px;font-size:15px;color:var(--marine)}
+  label.btn{display:inline-block}
   .erreurs{border:1px solid var(--erreur);border-left:4px solid var(--erreur);background:#fff5f4;padding:10px 16px;margin:14px 0;font-size:14px}
   .erreurs ul{margin:6px 0 0;padding-left:20px}
   .succes{border:1px solid var(--ok);border-left:4px solid var(--ok);background:#f0f9f3;padding:10px 16px;margin:14px 0;font-size:14px}
@@ -123,7 +132,8 @@
     <button role="tab" data-tab="dep">2. Déplacements <span class="compte" id="c-dep">0</span></button>
     <button role="tab" data-tab="log">3. Logement <span class="compte" id="c-log">0</span></button>
     <button role="tab" data-tab="rep">4. Repas <span class="compte" id="c-rep">0</span></button>
-    <button role="tab" data-tab="som">5. Sommaire et envoi</button>
+    <button role="tab" data-tab="som">5. Sommaire</button>
+    <button role="tab" data-tab="pj">6. Pièces et envoi <span class="compte" id="c-pj">0</span></button>
   </nav>
 
   <!-- 1. IDENTIFICATION -->
@@ -150,7 +160,7 @@
   <!-- 2. DÉPLACEMENTS -->
   <section class="panneau" id="p-dep">
     <h2><span class="num">2.</span>Déplacements</h2>
-    <p class="aide">Auto personnelle : indiquez le kilométrage aller et le kilométrage retour; le montant est calculé à <strong>0,73 $/km</strong>. Taxi ou Uber, train, autobus et avion : inscrivez le montant total payé (taxes incluses).</p>
+    <p class="aide">Auto personnelle : indiquez le kilométrage aller et le kilométrage retour; le montant est calculé à <strong>0,73 $/km</strong>. Taxi ou Uber, train, autobus et avion : inscrivez le montant avant taxes, la TPS et la TVQ tels qu’ils figurent sur le reçu (hors Québec, inscrivez la TVH dans la colonne TPS).</p>
     <div class="avis-fort" id="avis-40km" hidden role="alert"><span class="ico">!</span><span class="tx">Pour déplacement de plus de 40 km, comptabiliser et inscrire vos heures de déplacement sur Employeur D.<small>Un ou plusieurs trajets en auto personnelle dépassent 40 km.</small></span></div>
     <div class="tablewrap"><table class="lignes" id="t-dep"></table></div>
     <div class="actions"><button class="btn" data-add="dep">+ Ajouter un déplacement</button></div>
@@ -160,7 +170,7 @@
   <!-- 3. LOGEMENT -->
   <section class="panneau" id="p-log">
     <h2><span class="num">3.</span>Logement</h2>
-    <p class="aide">Hébergement à l’hôtel : inscrivez le montant avant taxes, les taxes et le pourboire tels qu’ils figurent sur la facture.</p>
+    <p class="aide">Hébergement à l’hôtel : inscrivez le montant avant taxes, la TPS, la TVQ et le pourboire tels qu’ils figurent sur la facture (hors Québec, inscrivez la TVH dans la colonne TPS; la taxe d’hébergement va dans « Avant taxes »).</p>
     <div class="tablewrap"><table class="lignes" id="t-log"></table></div>
     <div class="actions"><button class="btn" data-add="log">+ Ajouter un hébergement</button></div>
     <div class="nav-bas"><button class="btn" data-go="dep">← Déplacements</button><button class="btn prim" data-go="rep">Suivant : Repas →</button></div>
@@ -169,7 +179,7 @@
   <!-- 4. REPAS -->
   <section class="panneau" id="p-rep">
     <h2><span class="num">4.</span>Repas</h2>
-    <p class="aide">Inscrivez le montant avant taxes, les taxes et le pourboire tels qu’ils figurent sur la facture.</p>
+    <p class="aide">Inscrivez le montant avant taxes, la TPS, la TVQ et le pourboire tels qu’ils figurent sur la facture (hors Québec, inscrivez la TVH dans la colonne TPS).</p>
     <div class="tablewrap"><table class="lignes" id="t-rep"></table></div>
     <div class="actions"><button class="btn" data-add="rep">+ Ajouter un repas</button></div>
     <div class="nav-bas"><button class="btn" data-go="log">← Logement</button><button class="btn prim" data-go="som">Suivant : Sommaire →</button></div>
@@ -184,19 +194,31 @@
     <div id="som-km" class="aide"></div>
 
     <label class="attest"><input type="checkbox" id="f-attest">
-      <span>J’atteste que les dépenses déclarées ont été engagées dans l’exercice de mes fonctions pour l’Association des anesthésiologistes du Québec, qu’elles n’ont pas été remboursées par une autre source et que les pièces justificatives seront jointes à l’envoi. <span style="color:var(--erreur)">*</span></span></label>
+      <span>J’atteste que les dépenses déclarées ont été engagées dans l’exercice de mes fonctions pour l’Association des anesthésiologistes du Québec, qu’elles n’ont pas été remboursées par une autre source et que les pièces justificatives sont jointes à l’envoi. <span style="color:var(--erreur)">*</span></span></label>
 
-    <div id="zone-msg"></div>
+    <div class="nav-bas"><button class="btn" data-go="rep">← Repas</button><button class="btn prim" data-go="pj">Suivant : Pièces et envoi →</button></div>
+  </section>
 
-    <div class="encadre"><strong>Envoi :</strong> le bouton ci-dessous enregistre le fichier Excel sur votre appareil, puis prépare un courriel adressé à <span id="dest-aff">votre adresse</span>, avec copie à <strong>AAQ – Janie Bedard &lt;aaq@fmsq.org&gt;</strong>. Joignez-y le fichier Excel et vos pièces justificatives (reçus, factures), puis envoyez.</div>
+  <!-- 6. PIÈCES JUSTIFICATIVES ET ENVOI -->
+  <section class="panneau" id="p-pj">
+    <h2><span class="num">6.</span>Pièces justificatives et envoi</h2>
+    <p class="aide">Photographiez chaque reçu ou facture, ou ajoutez des fichiers (photos ou PDF). Les photos sont intégrées au fichier Excel et jointes au courriel.</p>
+    <div class="actions" style="margin-top:0">
+      <label class="btn prim" for="f-photo">📷 Prendre une photo</label>
+      <input type="file" id="f-photo" accept="image/*" capture="environment" hidden>
+      <label class="btn" for="f-fichiers">+ Ajouter des fichiers (photos ou PDF)</label>
+      <input type="file" id="f-fichiers" accept="image/*,application/pdf" multiple hidden>
+    </div>
+    <div id="pj-liste" class="pj-grille"></div>
 
+    <h2 style="margin-top:28px">Envoi</h2>
+    <div class="encadre">Le courriel doit être adressé à <span id="dest-aff">votre adresse</span>, avec copie à <strong>AAQ – Janie Bedard &lt;aaq@fmsq.org&gt;</strong>. Cliquez sur « Préparer l’envoi » : le fichier Excel (avec les photos) est créé, puis vous choisissez comment l’envoyer.</div>
     <div class="actions">
-      <button class="btn prim" id="b-generer">Générer le fichier Excel et préparer le courriel</button>
-      <button class="btn" id="b-xlsx">Télécharger le fichier Excel seulement</button>
-      <button class="btn" id="b-partager" hidden>Partager le fichier (iPhone, iPad)</button>
+      <button class="btn prim" id="b-preparer">Préparer l’envoi</button>
       <button class="btn lien" id="b-reset">Effacer le formulaire</button>
     </div>
-    <div class="nav-bas"><button class="btn" data-go="rep">← Repas</button><span></span></div>
+    <div id="zone-msg"></div>
+    <div class="nav-bas"><button class="btn" data-go="som">← Sommaire</button><span></span></div>
   </section>
 
   <footer>Association des anesthésiologistes du Québec · Compte de dépenses · Taux kilométrique : 0,73 $/km</footer>
@@ -288,12 +310,12 @@ const dateFr = s => { const p = parseISO(s); if (!p) return ""; return new Intl.
 /* ---------- état ---------- */
 let S = nouvelEtat();
 function nouvelEtat(){ return {ident:{prenom:"",nom:"",courriel:"",tel:"",fonction:"",fonctionAutre:"",du:"",au:"",comm:"",attest:false}, dep:[], log:[], rep:[]}; }
-function sauver(){ try{ localStorage.setItem("aaq-compte-depenses", JSON.stringify(S)); }catch(e){} }
-function charger(){ try{ const t = localStorage.getItem("aaq-compte-depenses"); if (t) { const o = JSON.parse(t); if (o && o.ident) S = Object.assign(nouvelEtat(), o); } }catch(e){} }
+function sauver(){ ENVOI = null; try{ localStorage.setItem("aaq-compte-depenses", JSON.stringify(S)); }catch(e){} }
+function charger(){ try{ const t = localStorage.getItem("aaq-compte-depenses"); if (t) { const o = JSON.parse(t); if (o && o.ident) { S = Object.assign(nouvelEtat(), o); (S.dep||[]).forEach(r => { if (r.mode && r.mode !== "Auto personnelle" && r.montant && !r.avant) r.avant = r.montant; delete r.montant; }); } } }catch(e){} }
 
 /* ---------- calculs ---------- */
-const montantDep = r => r.mode === "Auto personnelle" ? r2((num(r.kmA) + num(r.kmR)) * TAUX_KM) : r2(num(r.montant));
-const totalTTP = r => r2(num(r.avant) + num(r.taxes) + num(r.pourb));
+const montantDep = r => r.mode === "Auto personnelle" ? r2((num(r.kmA) + num(r.kmR)) * TAUX_KM) : r2(num(r.avant) + num(r.tps) + num(r.tvq));
+const totalTTP = r => r2(num(r.avant) + num(r.tps) + num(r.tvq) + num(r.pourb));
 const nuits = r => Math.max(0, joursEntre(r.arr, r.dep));
 
 /* ---------- définition des colonnes ---------- */
@@ -307,7 +329,10 @@ const COLS = {
     {k:"desc", lab:"Trajet (départ → destination)", t:"text", w:"190px", ph:"Québec → Montréal"},
     {k:"kmA", lab:"Km aller", t:"num", w:"78px", off:r => r.mode !== "Auto personnelle"},
     {k:"kmR", lab:"Km retour", t:"num", w:"78px", off:r => r.mode !== "Auto personnelle"},
-    {k:"montant", lab:"Montant ($)", t:"num", w:"105px", calc:r => r.mode === "Auto personnelle" ? montantDep(r).toFixed(2).replace(".", ",") : null}
+    {k:"avant", lab:"Avant taxes ($)", t:"num", w:"90px", off:r => r.mode === "Auto personnelle"},
+    {k:"tps", lab:"TPS ($)", t:"num", w:"75px", off:r => r.mode === "Auto personnelle"},
+    {k:"tvq", lab:"TVQ ($)", t:"num", w:"75px", off:r => r.mode === "Auto personnelle"},
+    {k:"montant", lab:"Montant ($)", t:"num", w:"95px", calc:r => montantDep(r).toFixed(2).replace(".", ",")}
   ],
   log: [
     {k:"arr", lab:"Date d’arrivée", t:"date", w:"130px"},
@@ -317,7 +342,8 @@ const COLS = {
     {k:"prec", lab:"Précision (si « Autres »)", t:"text", w:"130px", off:r => r.act !== "Autres"},
     {k:"etab", lab:"Hôtel et ville", t:"text", w:"170px"},
     {k:"avant", lab:"Avant taxes ($)", t:"num", w:"95px"},
-    {k:"taxes", lab:"Taxes ($)", t:"num", w:"85px"},
+    {k:"tps", lab:"TPS ($)", t:"num", w:"75px"},
+    {k:"tvq", lab:"TVQ ($)", t:"num", w:"75px"},
     {k:"pourb", lab:"Pourboire ($)", t:"num", w:"85px"},
     {k:"total", lab:"Total ($)", t:"num", w:"95px", calc:r => totalTTP(r).toFixed(2).replace(".", ",")}
   ],
@@ -328,7 +354,8 @@ const COLS = {
     {k:"type", lab:"Repas", t:"select", opts:TYPES_REPAS, w:"105px"},
     {k:"etab", lab:"Établissement et ville", t:"text", w:"170px"},
     {k:"avant", lab:"Avant taxes ($)", t:"num", w:"95px"},
-    {k:"taxes", lab:"Taxes ($)", t:"num", w:"85px"},
+    {k:"tps", lab:"TPS ($)", t:"num", w:"75px"},
+    {k:"tvq", lab:"TVQ ($)", t:"num", w:"75px"},
     {k:"pourb", lab:"Pourboire ($)", t:"num", w:"85px"},
     {k:"total", lab:"Total ($)", t:"num", w:"95px", calc:r => totalTTP(r).toFixed(2).replace(".", ",")}
   ]
@@ -406,7 +433,7 @@ function surSaisie(e){
   if (k === "act" || k === "mode") {
     if (k === "act" && el.value !== "Autres") r.prec = "";
     if (k === "mode" && el.value !== "Auto personnelle") { r.kmA = ""; r.kmR = ""; }
-    if (k === "mode" && el.value === "Auto personnelle") r.montant = "";
+    if (k === "mode" && el.value === "Auto personnelle") { r.avant = ""; r.tps = ""; r.tvq = ""; }
     // mettre à jour les autres cellules de la ligne sans toucher au menu en cours d’utilisation
     const tr = $(`#t-${tab} tr[data-row="${i}"]`);
     if (tr) COLS[tab].forEach(c => { if (c.k === k) return; const td = tr.querySelector(`td[data-col="${c.k}"]`); if (td) td.innerHTML = celluleHTML(tab, i, c, r); });
@@ -435,7 +462,7 @@ function ajouterLigne(tab){
 function allerA(tab){
   document.querySelectorAll("nav.onglets button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab ? "true" : "false"));
   document.querySelectorAll("section.panneau").forEach(s => s.classList.toggle("actif", s.id === "p-"+tab));
-  if (tab === "som") rendreSommaire();
+  if (tab === "som" || tab === "pj") rendreSommaire();
 }
 
 /* ---------- sommaire ---------- */
@@ -445,7 +472,8 @@ function agreger(){
   for (const tab of ["dep","log","rep"]) for (const r of S[tab]) { if (r.act in idx) parAct[idx[r.act]][tab] += TOTAL_LIGNE[tab](r); }
   parAct.forEach(p => { p.dep = r2(p.dep); p.log = r2(p.log); p.rep = r2(p.rep); p.tot = r2(p.dep + p.log + p.rep); });
   const km = S.dep.filter(r => r.mode === "Auto personnelle").reduce((s,r) => s + num(r.kmA) + num(r.kmR), 0);
-  return {parAct, tDep: totalOnglet("dep"), tLog: totalOnglet("log"), tRep: totalOnglet("rep"), km};
+  const somme = k => r2(["dep","log","rep"].reduce((t,tab) => t + S[tab].reduce((u,r) => u + (tab === "dep" && r.mode === "Auto personnelle" ? 0 : num(r[k])), 0), 0));
+  return {parAct, tDep: totalOnglet("dep"), tLog: totalOnglet("log"), tRep: totalOnglet("rep"), km, tps: somme("tps"), tvq: somme("tvq")};
 }
 function rendreSommaire(){
   const A = agreger(), I = S.ident;
@@ -455,7 +483,7 @@ function rendreSommaire(){
   for (const p of A.parAct) h += `<tr class="${p.tot ? "" : "zero"}"><td>${esc(p.act)}</td><td class="m">${fmt$(p.dep)}</td><td class="m">${fmt$(p.log)}</td><td class="m">${fmt$(p.rep)}</td><td class="m"><strong>${fmt$(p.tot)}</strong></td></tr>`;
   h += `<tr class="tot"><td>TOTAL À REMBOURSER</td><td class="m">${fmt$(A.tDep)}</td><td class="m">${fmt$(A.tLog)}</td><td class="m">${fmt$(A.tRep)}</td><td class="m">${fmt$(r2(A.tDep + A.tLog + A.tRep))}</td></tr></tbody>`;
   $("#t-som").innerHTML = h;
-  $("#som-km").textContent = A.km ? `Kilométrage en auto personnelle : ${fmtN(A.km)} km × 0,73 $/km = ${fmt$(r2(A.km * TAUX_KM))}` : "";
+  $("#som-km").innerHTML = (A.km ? `Kilométrage en auto personnelle : ${fmtN(A.km)} km × 0,73 $/km = ${fmt$(r2(A.km * TAUX_KM))}<br>` : "") + `Taxes incluses dans le total : TPS ${fmt$(A.tps)} · TVQ ${fmt$(A.tvq)}`;
   $("#dest-aff").innerHTML = I.courriel ? `<strong>${esc(I.courriel)}</strong>` : "votre adresse courriel";
   $("#zone-msg").innerHTML = "";
   majAvis40();
@@ -486,7 +514,7 @@ function valider(){
     if (r.act === "Autres") req("prec","précision de l’activité");
     if (tab === "dep") { req("mode","moyen de transport"); req("desc","trajet");
       if (r.mode === "Auto personnelle") { if (num(r.kmA) <= 0 && num(r.kmR) <= 0) { m.push("kilométrage aller et/ou retour"); r.__err.push("kmA","kmR"); } }
-      else if (num(r.montant) <= 0) { m.push("montant"); r.__err.push("montant"); } }
+      else if (num(r.avant) <= 0) { m.push("montant avant taxes"); r.__err.push("avant"); } }
     if (tab === "log") req("etab","hôtel et ville");
     if (tab === "rep") { req("type","type de repas"); req("etab","établissement"); }
     if (tab !== "dep" && num(r.avant) <= 0) { m.push("montant avant taxes"); r.__err.push("avant"); }
@@ -494,7 +522,7 @@ function valider(){
     const dates = tab === "log" ? [r.arr, r.dep] : [r.date];
     if (dates.some(d => d && !dansPeriode(d))) { E.push(p + "la date doit être comprise dans la période du compte de dépenses."); r.__err.push(tab === "log" ? "arr" : "date"); if (tab==="log") r.__err.push("dep"); }
     if (tab === "log" && r.arr && r.dep && r.dep < r.arr) { E.push(p + "la date de départ doit suivre la date d’arrivée."); r.__err.push("dep"); }
-    [ "kmA","kmR","montant","avant","taxes","pourb" ].forEach(k => { if (r[k] !== undefined && String(r[k]).trim() !== "" && (isNaN(parseFloat(String(r[k]).replace(",", "."))) || num(r[k]) < 0)) { E.push(p + "valeur numérique invalide."); r.__err.push(k); } });
+    [ "kmA","kmR","avant","tps","tvq","pourb" ].forEach(k => { if (r[k] !== undefined && String(r[k]).trim() !== "" && (isNaN(parseFloat(String(r[k]).replace(",", "."))) || num(r[k]) < 0)) { E.push(p + "valeur numérique invalide."); r.__err.push(k); } });
   });
   if (!S.dep.length && !S.log.length && !S.rep.length) E.push("Aucune dépense n’a été saisie.");
   if (!I.attest) E.push("Sommaire : cochez l’attestation.");
@@ -547,12 +575,12 @@ async function construireClasseur(){
   const REF_ACT = `Listes!$A$1:$A$${ACTIVITES.length}`, REF_MODE = `Listes!$B$1:$B$${MODES.length}`, REF_REPAS = `Listes!$C$1:$C$${TYPES_REPAS.length}`;
 
   /* --- Déplacements --- */
-  const hd = ["Date","Activité ou comité","Précision","Moyen de transport","Trajet","Km aller","Km retour","Km total","Taux ($/km)","Montant ($)"];
+  const hd = ["Date","Activité ou comité","Précision","Moyen de transport","Trajet","Km aller","Km retour","Km total","Taux ($/km)","Avant taxes ($)","TPS ($)","TVQ ($)","Montant ($)"];
   enteteFeuille(wd, "DÉPLACEMENTS", hd.length, I);
-  wd.getCell(3,1).value = "Auto personnelle remboursée à 0,73 $/km (km aller + km retour). Autres moyens : montant payé, taxes incluses." + (plus40() ? " Pour déplacement de plus de 40 km, comptabiliser et inscrire vos heures de déplacement sur Employeur D." : "");
+  wd.getCell(3,1).value = "Auto personnelle remboursée à 0,73 $/km (km aller + km retour). Autres moyens : montant avant taxes, TPS et TVQ." + (plus40() ? " Pour déplacement de plus de 40 km, comptabiliser et inscrire vos heures de déplacement sur Employeur D." : "");
   wd.getCell(3,1).font = {name:"Arial", italic:true, size:9, color:{argb:"FF5A6270"}};
   styleEntetes(wd.addRow(hd)); // ligne 4
-  [12,40,20,18,30,10,10,10,11,14].forEach((w,i) => wd.getColumn(i+1).width = w);
+  [12,40,20,18,30,10,10,10,11,13,10,10,14].forEach((w,i) => wd.getColumn(i+1).width = w);
   const d1 = 5;
   S.dep.forEach((r,i) => {
     const R = d1 + i, auto = r.mode === "Auto personnelle";
@@ -564,59 +592,62 @@ async function construireClasseur(){
       row.getCell(6).value = num(r.kmA); row.getCell(7).value = num(r.kmR);
       row.getCell(8).value = {formula:`F${R}+G${R}`, result: num(r.kmA)+num(r.kmR)};
       row.getCell(9).value = TAUX_KM;
-      row.getCell(10).value = {formula:`ROUND(H${R}*I${R},2)`, result: montantDep(r)};
+      row.getCell(13).value = {formula:`ROUND(H${R}*I${R},2)`, result: montantDep(r)};
     } else {
-      row.getCell(10).value = montantDep(r);
+      row.getCell(10).value = num(r.avant); row.getCell(11).value = num(r.tps); row.getCell(12).value = num(r.tvq);
+      row.getCell(13).value = {formula:`SUM(J${R}:L${R})`, result: montantDep(r)};
     }
   });
   const dN = Math.max(d1, d1 + S.dep.length - 1), dTot = d1 + S.dep.length + (S.dep.length ? 0 : 1);
   const rowTD = wd.getRow(dTot);
   rowTD.getCell(1).value = "TOTAL DES DÉPLACEMENTS";
   rowTD.getCell(8).value = {formula:`SUM(H${d1}:H${dN})`, result:A.km};
-  rowTD.getCell(10).value = {formula:`SUM(J${d1}:J${dN})`, result:A.tDep};
+  const nonAuto = S.dep.filter(r => r.mode !== "Auto personnelle");
+  ["J","K","L"].forEach((L,j) => rowTD.getCell(10+j).value = {formula:`SUM(${L}${d1}:${L}${dN})`, result: r2(nonAuto.reduce((t,r) => t + num([r.avant,r.tps,r.tvq][j]), 0))});
+  rowTD.getCell(13).value = {formula:`SUM(M${d1}:M${dN})`, result:A.tDep};
   styleTotal(rowTD, hd.length);
 
   /* --- Logement --- */
-  const hl = ["Date d’arrivée","Date de départ","Nuits","Activité ou comité","Précision","Hôtel et ville","Avant taxes ($)","Taxes ($)","Pourboire ($)","Total ($)"];
+  const hl = ["Date d’arrivée","Date de départ","Nuits","Activité ou comité","Précision","Hôtel et ville","Avant taxes ($)","TPS ($)","TVQ ($)","Pourboire ($)","Total ($)"];
   enteteFeuille(wlg, "LOGEMENT", hl.length, I);
-  wlg.getCell(3,1).value = "Hébergement à l’hôtel, taxes et pourboire inclus au total."; wlg.getCell(3,1).font = {name:"Arial", italic:true, size:9, color:{argb:"FF5A6270"}};
+  wlg.getCell(3,1).value = "Hébergement à l’hôtel : TPS, TVQ et pourboire inclus au total."; wlg.getCell(3,1).font = {name:"Arial", italic:true, size:9, color:{argb:"FF5A6270"}};
   styleEntetes(wlg.addRow(hl));
-  [13,13,7,40,20,30,13,11,12,13].forEach((w,i) => wlg.getColumn(i+1).width = w);
+  [13,13,7,40,20,30,13,10,10,12,13].forEach((w,i) => wlg.getColumn(i+1).width = w);
   S.log.forEach((r,i) => {
     const R = d1 + i, row = wlg.getRow(R);
     row.getCell(1).value = isoToUTC(r.arr); row.getCell(2).value = isoToUTC(r.dep);
     row.getCell(3).value = {formula:`B${R}-A${R}`, result:nuits(r)};
     row.getCell(4).value = r.act; row.getCell(5).value = r.act === "Autres" ? (r.prec||"") : "";
     row.getCell(6).value = r.etab || "";
-    row.getCell(7).value = num(r.avant); row.getCell(8).value = num(r.taxes); row.getCell(9).value = num(r.pourb);
-    row.getCell(10).value = {formula:`SUM(G${R}:I${R})`, result: totalTTP(r)};
+    row.getCell(7).value = num(r.avant); row.getCell(8).value = num(r.tps); row.getCell(9).value = num(r.tvq); row.getCell(10).value = num(r.pourb);
+    row.getCell(11).value = {formula:`SUM(G${R}:J${R})`, result: totalTTP(r)};
   });
   const lN = Math.max(d1, d1 + S.log.length - 1), lTot = d1 + S.log.length + (S.log.length ? 0 : 1);
   const rowTL = wlg.getRow(lTot); rowTL.getCell(1).value = "TOTAL DU LOGEMENT";
   rowTL.getCell(3).value = {formula:`SUM(C${d1}:C${lN})`, result:S.log.reduce((s,r)=>s+nuits(r),0)};
-  ["G","H","I","J"].forEach((L,j) => rowTL.getCell(7+j).value = {formula:`SUM(${L}${d1}:${L}${lN})`, result: r2(S.log.reduce((s,r) => s + [num(r.avant),num(r.taxes),num(r.pourb),totalTTP(r)][j], 0))});
+  ["G","H","I","J","K"].forEach((L,j) => rowTL.getCell(7+j).value = {formula:`SUM(${L}${d1}:${L}${lN})`, result: r2(S.log.reduce((s,r) => s + [num(r.avant),num(r.tps),num(r.tvq),num(r.pourb),totalTTP(r)][j], 0))});
   styleTotal(rowTL, hl.length);
 
   /* --- Repas --- */
-  const hr = ["Date","Activité ou comité","Précision","Repas","Établissement et ville","Avant taxes ($)","Taxes ($)","Pourboire ($)","Total ($)"];
+  const hr = ["Date","Activité ou comité","Précision","Repas","Établissement et ville","Avant taxes ($)","TPS ($)","TVQ ($)","Pourboire ($)","Total ($)"];
   enteteFeuille(wr, "REPAS", hr.length, I);
-  wr.getCell(3,1).value = "Repas, taxes et pourboire inclus au total."; wr.getCell(3,1).font = {name:"Arial", italic:true, size:9, color:{argb:"FF5A6270"}};
+  wr.getCell(3,1).value = "Repas : TPS, TVQ et pourboire inclus au total."; wr.getCell(3,1).font = {name:"Arial", italic:true, size:9, color:{argb:"FF5A6270"}};
   styleEntetes(wr.addRow(hr));
-  [12,40,20,11,32,13,11,12,13].forEach((w,i) => wr.getColumn(i+1).width = w);
+  [12,40,20,11,32,13,10,10,12,13].forEach((w,i) => wr.getColumn(i+1).width = w);
   S.rep.forEach((r,i) => {
     const R = d1 + i, row = wr.getRow(R);
     row.getCell(1).value = isoToUTC(r.date); row.getCell(2).value = r.act; row.getCell(3).value = r.act === "Autres" ? (r.prec||"") : "";
     row.getCell(4).value = r.type || ""; row.getCell(5).value = r.etab || "";
-    row.getCell(6).value = num(r.avant); row.getCell(7).value = num(r.taxes); row.getCell(8).value = num(r.pourb);
-    row.getCell(9).value = {formula:`SUM(F${R}:H${R})`, result: totalTTP(r)};
+    row.getCell(6).value = num(r.avant); row.getCell(7).value = num(r.tps); row.getCell(8).value = num(r.tvq); row.getCell(9).value = num(r.pourb);
+    row.getCell(10).value = {formula:`SUM(F${R}:I${R})`, result: totalTTP(r)};
   });
   const rN = Math.max(d1, d1 + S.rep.length - 1), rTot = d1 + S.rep.length + (S.rep.length ? 0 : 1);
   const rowTR = wr.getRow(rTot); rowTR.getCell(1).value = "TOTAL DES REPAS";
-  ["F","G","H","I"].forEach((L,j) => rowTR.getCell(6+j).value = {formula:`SUM(${L}${d1}:${L}${rN})`, result: r2(S.rep.reduce((s,r) => s + [num(r.avant),num(r.taxes),num(r.pourb),totalTTP(r)][j], 0))});
+  ["F","G","H","I","J"].forEach((L,j) => rowTR.getCell(6+j).value = {formula:`SUM(${L}${d1}:${L}${rN})`, result: r2(S.rep.reduce((s,r) => s + [num(r.avant),num(r.tps),num(r.tvq),num(r.pourb),totalTTP(r)][j], 0))});
   styleTotal(rowTR, hr.length);
 
   /* mise en forme commune des lignes de détail */
-  const detail = [[wd, S.dep.length, hd.length, [1], [10], [6,7,8]], [wlg, S.log.length, hl.length, [1,2], [7,8,9,10], [3]], [wr, S.rep.length, hr.length, [1], [6,7,8,9], []]];
+  const detail = [[wd, S.dep.length, hd.length, [1], [10,11,12,13], [6,7,8]], [wlg, S.log.length, hl.length, [1,2], [7,8,9,10,11], [3]], [wr, S.rep.length, hr.length, [1], [6,7,8,9,10], []]];
   for (const [ws, n, nc, dcols, mcols, ncols] of detail) {
     for (let R = d1; R < d1 + Math.max(n,1); R++) for (let j=1;j<=nc;j++){ const c = ws.getCell(R,j); c.border = bord; c.font = {name:"Arial", size:10}; c.alignment = {vertical:"top", wrapText: !dcols.includes(j) && !mcols.includes(j)}; }
     dcols.forEach(j => ws.getColumn(j).numFmt = FMTD);
@@ -659,9 +690,9 @@ async function construireClasseur(){
   A.parAct.forEach((p, i) => {
     const R = 17 + i, row = ws.getRow(R);
     row.getCell(1).value = p.act;
-    row.getCell(2).value = {formula:`SUMIFS(${q("Déplacements")}!$J$${d1}:$J$${dN},${q("Déplacements")}!$B$${d1}:$B$${dN},$A${R})`, result:p.dep};
-    row.getCell(3).value = {formula:`SUMIFS(${q("Logement")}!$J$${d1}:$J$${lN},${q("Logement")}!$D$${d1}:$D$${lN},$A${R})`, result:p.log};
-    row.getCell(4).value = {formula:`SUMIFS(${q("Repas")}!$I$${d1}:$I$${rN},${q("Repas")}!$B$${d1}:$B$${rN},$A${R})`, result:p.rep};
+    row.getCell(2).value = {formula:`SUMIFS(${q("Déplacements")}!$M$${d1}:$M$${dN},${q("Déplacements")}!$B$${d1}:$B$${dN},$A${R})`, result:p.dep};
+    row.getCell(3).value = {formula:`SUMIFS(${q("Logement")}!$K$${d1}:$K$${lN},${q("Logement")}!$D$${d1}:$D$${lN},$A${R})`, result:p.log};
+    row.getCell(4).value = {formula:`SUMIFS(${q("Repas")}!$J$${d1}:$J$${rN},${q("Repas")}!$B$${d1}:$B$${rN},$A${R})`, result:p.rep};
     row.getCell(5).value = {formula:`SUM(B${R}:D${R})`, result:p.tot};
     for (let j=1;j<=5;j++){ const c = row.getCell(j); c.border = bord; c.font = {name:"Arial", size:10, bold:j===5}; if (j>1) c.numFmt = FMT$; }
   });
@@ -672,9 +703,15 @@ async function construireClasseur(){
   // contrôle : total des feuilles de détail
   const RC = RT + 1;
   ws.getCell(RC,1).value = "Contrôle : total des feuilles de détail"; ws.getCell(RC,1).font = {name:"Arial", italic:true, size:8, color:{argb:"FF8A93A0"}};
-  ws.getCell(RC,5).value = {formula:`${q("Déplacements")}!J${dTot}+${q("Logement")}!J${lTot}+${q("Repas")}!I${rTot}`, result:r2(A.tDep+A.tLog+A.tRep)};
+  ws.getCell(RC,5).value = {formula:`${q("Déplacements")}!M${dTot}+${q("Logement")}!K${lTot}+${q("Repas")}!J${rTot}`, result:r2(A.tDep+A.tLog+A.tRep)};
   ws.getCell(RC,5).numFmt = FMT$; ws.getCell(RC,5).font = {name:"Arial", italic:true, size:8, color:{argb:"FF8A93A0"}};
   let R = RC + 1;
+  // taxes payées (pour la comptabilité)
+  for (const [lab, fD, fL, fR, val] of [["TPS payée (incluse dans le total)", "K", "H", "G", A.tps], ["TVQ payée (incluse dans le total)", "L", "I", "H", A.tvq]]) {
+    ws.getCell(R,1).value = lab; ws.getCell(R,1).font = {name:"Arial", size:10, color:{argb:MARINE}};
+    ws.getCell(R,5).value = {formula:`${q("Déplacements")}!${fD}${dTot}+${q("Logement")}!${fL}${lTot}+${q("Repas")}!${fR}${rTot}`, result: val};
+    ws.getCell(R,5).numFmt = FMT$; ws.getCell(R,5).font = {name:"Arial", size:10}; R++;
+  }
   if (A.km) { ws.mergeCells(R,1,R,5); ws.getCell(R,1).value = `Kilométrage en auto personnelle : ${fmtN(A.km)} km × 0,73 $/km`; ws.getCell(R,1).font = {name:"Arial", size:9, color:{argb:"FF5A6270"}}; R++; }
 
   if (plus40()) { R++; ws.mergeCells(R,1,R+1,5); const c = ws.getCell(R,1); c.value = "⚠ IMPORTANT : Pour déplacement de plus de 40 km, comptabiliser et inscrire vos heures de déplacement sur Employeur D."; c.font = {name:"Arial", bold:true, size:11, color:{argb:"FFC00000"}}; c.fill = {type:"pattern", pattern:"solid", fgColor:{argb:"FFFFF1E6"}}; c.alignment = {vertical:"middle", wrapText:true}; const b2 = {style:"medium", color:{argb:"FFC00000"}}; c.border = {top:b2,left:b2,bottom:b2,right:b2}; ws.getRow(R).height = 18; ws.getRow(R+1).height = 18; R += 2; }
@@ -694,6 +731,7 @@ async function construireClasseur(){
   }
   ws.headerFooter.oddFooter = "&L&8 AAQ – Compte de dépenses – " + `${I.prenom} ${I.nom}` + "&R&8 Page &P de &N";
   ws.pageSetup.printArea = `A1:E${R}`;
+  await feuillePJ(wb, I);
   wb.views = [{activeTab:0, firstSheet:0, visibility:"visible"}];
   return wb;
 }
@@ -708,26 +746,8 @@ async function blobXlsx(){
   const buf = await wb.xlsx.writeBuffer();
   return new Blob([buf], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
 }
-const peutPartager = () => { try { return !!(navigator.canShare && navigator.canShare({files:[new File(["x"], "t.xlsx", {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})]})); } catch (e) { return false; } };
-async function partagerXlsx(){
-  rendreSommaire();
-  const E = valider();
-  if (E.length) { afficherErreurs(E); return; }
-  try {
-    const nom = nomFichier(), I = S.ident;
-    const f = new File([await blobXlsx()], nom, {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
-    const m = lienCourriel(nom);
-    await navigator.share({files:[f], title: m.sujet, text: `${m.sujet}\nÀ : ${I.courriel}\nCc : ${COURRIEL_AAQ}`});
-    $("#zone-msg").innerHTML = `<div class="succes"><strong>Fichier partagé.</strong> Si vous l’avez envoyé par Mail, vérifiez que le message est adressé à <strong>${esc(I.courriel)}</strong> avec copie à <strong>${COURRIEL_AAQ}</strong>, et joignez vos pièces justificatives.</div>`;
-  } catch (err) {
-    if (err && err.name === "AbortError") return;
-    $("#zone-msg").innerHTML = `<div class="erreurs">Le partage n’a pas fonctionné : ${esc(err.message || err)}. Utilisez plutôt « Télécharger le fichier Excel seulement ».</div>`;
-  }
-}
 async function telechargerXlsx(){
-  const wb = await construireClasseur();
-  const buf = await wb.xlsx.writeBuffer();
-  const blob = new Blob([buf], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  const blob = ENVOI ? ENVOI.xlsx : await blobXlsx();
   const nom = nomFichier();
   if (DL) {
     try { await DL.save({filename: nom, data: blob}); return nom; }
@@ -741,14 +761,14 @@ async function telechargerXlsx(){
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
   return nom;
 }
-function lienCourriel(fichier){
+function lienCourriel(fichier, nbPieces){
   const I = S.ident, A = agreger(), tot = r2(A.tDep + A.tLog + A.tRep);
   const sujet = `Compte de dépenses AAQ – ${I.prenom} ${I.nom} – du ${I.du} au ${I.au}`;
   const corps = [
     "Bonjour,", "",
     `Veuillez trouver ci-joint mon compte de dépenses pour la période du ${dateFr(I.du)} au ${dateFr(I.au)}.`, "",
     `Déplacements : ${fmt$(A.tDep)}`, `Logement : ${fmt$(A.tLog)}`, `Repas : ${fmt$(A.tRep)}`, `Total à rembourser : ${fmt$(tot)}`, "",
-    `Pièces jointes : ${fichier} et pièces justificatives.`, "",
+    `Pièces jointes : ${fichier}${nbPieces ? ` et ${nbPieces} pièce(s) justificative(s)` : " et pièces justificatives"}.`, "",
     "Merci,", `${I.prenom} ${I.nom}`
   ].join("\r\n");
   return {href:`mailto:${encodeURIComponent(I.courriel.trim())}?cc=${encodeURIComponent(COURRIEL_AAQ)}&subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`, sujet};
@@ -756,41 +776,143 @@ function lienCourriel(fichier){
 function afficherErreurs(E){
   $("#zone-msg").innerHTML = `<div class="erreurs"><strong>Le formulaire est incomplet :</strong><ul>${E.map(e => `<li>${esc(e)}</li>`).join("")}</ul></div>`;
 }
-async function action(avecCourriel){
+
+/* ---------- pièces justificatives (photos, PDF) ---------- */
+let PJ = [];            // {id, nom, type, desc, blob, w, h, url}
+const PJ_DB = "aaq-depenses-pj";
+function pjDb(){ return new Promise((ok, ko) => { try { const q = indexedDB.open(PJ_DB, 1); q.onupgradeneeded = () => q.result.createObjectStore("pj", {keyPath:"id"}); q.onsuccess = () => ok(q.result); q.onerror = () => ko(q.error); } catch (e) { ko(e); } }); }
+async function pjTx(mode, fn){ try { const db = await pjDb(); return await new Promise((ok, ko) => { const tx = db.transaction("pj", mode); const st = tx.objectStore("pj"); const r = fn(st); tx.oncomplete = () => ok(r && r.result); tx.onerror = () => ko(tx.error); }); } catch (e) { return null; } }
+const pjSauver = it => pjTx("readwrite", st => st.put({id:it.id, nom:it.nom, type:it.type, desc:it.desc, blob:it.blob, w:it.w, h:it.h, ordre:it.ordre}));
+const pjSupprimer = id => pjTx("readwrite", st => st.delete(id));
+const pjVider = () => pjTx("readwrite", st => st.clear());
+async function pjCharger(){
+  const tout = await pjTx("readonly", st => st.getAll());
+  if (Array.isArray(tout)) { PJ = tout.sort((a,b) => a.ordre - b.ordre).map(it => Object.assign(it, {url: URL.createObjectURL(it.blob)})); rendrePJ(); }
+}
+function lireImage(file){ return new Promise((ok, ko) => { const u = URL.createObjectURL(file); const im = new Image(); im.onload = () => ok({im, u}); im.onerror = () => { URL.revokeObjectURL(u); ko(new Error("image illisible")); }; im.src = u; }); }
+async function compresser(file){
+  const {im, u} = await lireImage(file);
+  const MAX = 1600, k = Math.min(1, MAX / Math.max(im.naturalWidth, im.naturalHeight));
+  const w = Math.round(im.naturalWidth * k), h = Math.round(im.naturalHeight * k);
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0,0,w,h); g.drawImage(im, 0, 0, w, h);
+  URL.revokeObjectURL(u);
+  const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", 0.75));
+  return {blob, w, h};
+}
+async function ajouterFichiers(files){
+  for (const f of files) {
+    const it = {id: Date.now().toString(36) + Math.random().toString(36).slice(2,7), desc:"", ordre: Date.now() + PJ.length};
+    try {
+      if (f.type === "application/pdf" || /\.pdf$/i.test(f.name)) {
+        if (f.size > 10 * 1024 * 1024) { alerteMsg(`« ${f.name} » dépasse 10 Mo et n’a pas été ajouté.`); continue; }
+        Object.assign(it, {nom: f.name, type:"application/pdf", blob: f});
+      } else {
+        const c = await compresser(f);
+        Object.assign(it, {nom: `photo-${PJ.length + 1}.jpg`, type:"image/jpeg", blob:c.blob, w:c.w, h:c.h});
+      }
+    } catch (e) { alerteMsg(`« ${f.name} » n’a pas pu être lu.`); continue; }
+    it.url = URL.createObjectURL(it.blob);
+    PJ.push(it); pjSauver(it);
+  }
+  rendrePJ();
+}
+function alerteMsg(t){ $("#zone-msg").innerHTML = `<div class="erreurs">${esc(t)}</div>`; }
+function rendrePJ(){ ENVOI = null;
+  const L = $("#pj-liste");
+  if (!PJ.length) L.innerHTML = `<div class="pj-vide">Aucune pièce justificative. Touchez « Prendre une photo » pour photographier un reçu.</div>`;
+  else L.innerHTML = PJ.map((it,i) => `<div class="pj">
+      <div class="vign">${it.type === "application/pdf" ? "PDF" : `<img src="${it.url}" alt="Pièce ${i+1}">`}</div>
+      <input data-pj="${it.id}" value="${esc(it.desc)}" placeholder="Description (ex. : hôtel, 3 nov.)" aria-label="Description de la pièce ${i+1}">
+      <div class="ligne"><span>Pièce ${i+1} · ${Math.max(1, Math.round(it.blob.size/1024))} Ko</span><button class="suppr" data-pjdel="${it.id}" title="Retirer" aria-label="Retirer la pièce ${i+1}">×</button></div>
+    </div>`).join("");
+  $("#c-pj").textContent = PJ.length;
+}
+document.addEventListener("input", e => { const id = e.target.dataset && e.target.dataset.pj; if (!id) return; const it = PJ.find(x => x.id === id); if (it) { it.desc = e.target.value; pjSauver(it); } });
+document.addEventListener("click", e => { const b = e.target.closest("[data-pjdel]"); if (!b) return; const id = b.dataset.pjdel; const it = PJ.find(x => x.id === id); if (it) URL.revokeObjectURL(it.url); PJ = PJ.filter(x => x.id !== id); pjSupprimer(id); rendrePJ(); });
+for (const id of ["#f-photo", "#f-fichiers"]) $(id).addEventListener("change", async e => { const f = Array.from(e.target.files || []); e.target.value = ""; if (f.length) await ajouterFichiers(f); });
+const blobB64 = b => new Promise(ok => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.readAsDataURL(b); });
+const nomPJ = (it, i) => { const base = nomFichier().replace(/\.xlsx$/, ""); return `${base}_piece-${String(i+1).padStart(2,"0")}.${it.type === "application/pdf" ? "pdf" : "jpg"}`; };
+
+async function feuillePJ(wb, I){
+  if (!PJ.length) return;
+  const ws = wb.addWorksheet("Pièces justificatives", {pageSetup:{orientation:"portrait", fitToPage:true, fitToWidth:1, fitToHeight:0, paperSize:1}});
+  [8,50,52].forEach((w,i) => ws.getColumn(i+1).width = w);
+  ws.mergeCells(1,1,1,3); ws.getCell(1,1).value = "PIÈCES JUSTIFICATIVES"; ws.getCell(1,1).font = {name:"Arial", bold:true, size:14, color:{argb:MARINE}};
+  ws.mergeCells(2,1,2,3); ws.getCell(2,1).value = `${I.prenom} ${I.nom} — Période du ${dateFr(I.du)} au ${dateFr(I.au)}`; ws.getCell(2,1).font = {name:"Arial", size:10, color:{argb:"FF5A6270"}};
+  const h = ws.getRow(4); ["No","Description","Fichier joint au courriel"].forEach((t,j) => h.getCell(j+1).value = t); styleEntetes(h);
+  PJ.forEach((it,i) => { const r = ws.getRow(5+i); r.getCell(1).value = i+1; r.getCell(2).value = it.desc || "—"; r.getCell(3).value = nomPJ(it,i); for (let j=1;j<=3;j++){ r.getCell(j).border = bord; r.getCell(j).font = {name:"Arial", size:10}; } });
+  let R = 5 + PJ.length + 2;
+  for (const [i, it] of PJ.entries()) {
+    ws.getCell(R,1).value = `Pièce ${i+1}${it.desc ? " – " + it.desc : ""}`; ws.getCell(R,1).font = {name:"Arial", bold:true, size:11, color:{argb:BLEU}}; R++;
+    if (it.type === "application/pdf") { ws.getCell(R,1).value = `Document PDF joint séparément au courriel : ${nomPJ(it,i)}`; ws.getCell(R,1).font = {name:"Arial", italic:true, size:10}; R += 2; continue; }
+    const largeur = 560, hauteur = Math.round(largeur * it.h / it.w);
+    const imgId = wb.addImage({base64: await blobB64(it.blob), extension:"jpeg"});
+    ws.addImage(imgId, {tl:{col:0, row:R-1}, ext:{width:largeur, height:hauteur}});
+    R += Math.ceil(hauteur / 20) + 2;   // ~20 px par ligne
+  }
+}
+
+/* ---------- envoi ---------- */
+let ENVOI = null;   // {xlsx: File, pieces: [File], sujet, href}
+const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+const peutPartager = files => { try { return !!(navigator.share && navigator.canShare && navigator.canShare({files})); } catch (e) { return false; } };
+async function preparerEnvoi(){
   rendreSommaire();
   const E = valider();
   if (E.length) { afficherErreurs(E); return; }
+  const b = $("#b-preparer"); b.disabled = true; b.textContent = "Préparation…";
   try {
-    const f = await telechargerXlsx();
-    let h = `<div class="succes"><strong>Fichier Excel créé :</strong> ${esc(f)}`;
-    if (avecCourriel) {
-      const m = lienCourriel(f);
-      h += `<div style="margin-top:10px"><strong>Étape suivante — envoyer le courriel :</strong><br>
-        À : <strong>${esc(S.ident.courriel)}</strong><br>Cc : <strong>${esc(NOM_AAQ)} &lt;${COURRIEL_AAQ}&gt;</strong><br>Objet : ${esc(m.sujet)}<br>
-        Pièces jointes : le fichier Excel et vos pièces justificatives (reçus, factures).</div>
-        <div class="actions"><a class="btn prim" href="${esc(m.href)}" target="_blank" rel="noopener">Ouvrir le courriel</a>
-        <span style="font-size:13px;color:var(--gris)">Si rien ne s’ouvre, écrivez à ces adresses depuis votre messagerie.</span></div>`;
+    const nom = nomFichier(), I = S.ident;
+    const xlsx = new File([await blobXlsx()], nom, {type: XLSX_MIME});
+    const pieces = PJ.map((it,i) => new File([it.blob], nomPJ(it,i), {type: it.type}));
+    const m = lienCourriel(nom, pieces.length);
+    ENVOI = {xlsx, pieces, sujet: m.sujet, href: m.href};
+    const tous = [xlsx, ...pieces];
+    const partage = peutPartager(tous) ? tous : (peutPartager([xlsx]) ? [xlsx] : null);
+    const avert = PJ.length ? "" : `<p style="color:var(--erreur);font-weight:bold;margin:0 0 8px">Aucune pièce justificative n’est jointe. Ajoutez vos reçus ci-dessus avant d’envoyer.</p>`;
+    let h = `<div class="succes"><strong>Prêt à envoyer :</strong> ${esc(nom)}${pieces.length ? ` et ${pieces.length} pièce${pieces.length>1?"s":""} justificative${pieces.length>1?"s":""}` : ""}.</div>${avert}`;
+    if (partage) h += `<div class="etape"><h3>Sur téléphone ou tablette (recommandé)</h3>
+        <ol style="margin:0 0 10px;padding-left:20px;font-size:14px"><li>Touchez « Envoyer avec les pièces jointes », puis choisissez <strong>Mail</strong>, <strong>Outlook</strong> ou <strong>Gmail</strong>.</li>
+        <li>Le fichier Excel${partage.length > 1 ? " et les photos sont" : " est"} déjà joint${partage.length > 1 ? "s" : ""}. Inscrivez les destinataires :<br>À : <strong>${esc(I.courriel)}</strong> · Cc : <strong>${COURRIEL_AAQ}</strong></li></ol>
+        <div class="actions" style="margin-top:0"><button class="btn prim" id="b-partager">Envoyer avec les pièces jointes</button>
+        <button class="btn" id="b-copier-a">Copier mon adresse</button><button class="btn" id="b-copier-cc">Copier ${COURRIEL_AAQ}</button></div></div>`;
+    h += `<div class="etape"><h3>${partage ? "Sur ordinateur" : "Envoi"}</h3>
+        <ol style="margin:0 0 10px;padding-left:20px;font-size:14px"><li>Téléchargez le fichier Excel (les photos y sont intégrées).</li>
+        <li>Ouvrez le courriel préparé (À : ${esc(I.courriel)}, Cc : ${COURRIEL_AAQ}) et joignez-y le fichier téléchargé${PJ.some(x => x.type === "application/pdf") ? " ainsi que vos PDF" : ""}.</li></ol>
+        <div class="actions" style="margin-top:0"><button class="btn${partage ? "" : " prim"}" id="b-telecharger">Télécharger le fichier Excel</button>
+        <a class="btn" href="${esc(m.href)}" target="_blank" rel="noopener">Ouvrir le courriel</a></div></div>`;
+    $("#zone-msg").innerHTML = h;
+    if (partage) {
+      $("#b-partager").addEventListener("click", async () => {
+        try { await navigator.share({files: partage, title: ENVOI.sujet, text: `${ENVOI.sujet}\nÀ : ${I.courriel}\nCc : ${COURRIEL_AAQ}`}); }
+        catch (err) { if (err && err.name !== "AbortError") $("#zone-msg").insertAdjacentHTML("afterbegin", `<div class="erreurs">Le partage n’est pas disponible ici. Utilisez « Télécharger le fichier Excel ».</div>`); }
+      });
+      const copier = (bt, t) => bt.addEventListener("click", async () => { try { await navigator.clipboard.writeText(t); bt.textContent = "Copié ✓"; } catch (e) { bt.textContent = t; } });
+      copier($("#b-copier-a"), I.courriel.trim()); copier($("#b-copier-cc"), COURRIEL_AAQ);
     }
-    $("#zone-msg").innerHTML = h + "</div>";
+    $("#b-telecharger").addEventListener("click", async () => {
+      try { await telechargerXlsx(); }
+      catch (err) { $("#zone-msg").insertAdjacentHTML("afterbegin", `<div class="erreurs">${esc(err.message)}</div>`); }
+    });
   } catch (err) {
-    $("#zone-msg").innerHTML = `<div class="erreurs">Erreur lors de la création du fichier Excel : ${esc(err.message)}</div>`;
-  }
+    $("#zone-msg").innerHTML = `<div class="erreurs">Erreur lors de la préparation : ${esc(err.message)}</div>`;
+  } finally { b.disabled = false; b.textContent = "Préparer l’envoi"; }
 }
-$("#b-generer").addEventListener("click", () => action(true));
-$("#b-xlsx").addEventListener("click", () => action(false));
-if (peutPartager()) { $("#b-partager").hidden = false; $("#b-partager").addEventListener("click", partagerXlsx); }
+$("#b-preparer").addEventListener("click", preparerEnvoi);
+
 let resetArme = null;
 $("#b-reset").addEventListener("click", e => {
   const b = e.currentTarget;
   if (!resetArme) { b.textContent = "Confirmer : tout effacer?"; b.style.color = "var(--erreur)"; resetArme = setTimeout(() => { resetArme = null; b.textContent = "Effacer le formulaire"; b.style.color = ""; }, 4000); return; }
   clearTimeout(resetArme); resetArme = null; S = nouvelEtat(); sauver(); b.textContent = "Effacer le formulaire"; b.style.color = "";
-  initValeurs(); ["dep","log","rep"].forEach(rendreTable); allerA("ident"); $("#zone-msg").innerHTML = "";
+  PJ.forEach(it => URL.revokeObjectURL(it.url)); PJ = []; pjVider(); ENVOI = null; rendrePJ(); initValeurs(); ["dep","log","rep"].forEach(rendreTable); allerA("ident"); $("#zone-msg").innerHTML = "";
 });
 
 /* ---------- démarrage ---------- */
 { const sj = document.getElementById("sans-js"); if (sj) sj.remove(); }
-charger(); initIdent(); ["dep","log","rep"].forEach(rendreTable);
-window.__AAQ = {S: () => S, construireClasseur, valider, agreger};
+charger(); initIdent(); ["dep","log","rep"].forEach(rendreTable); rendrePJ(); pjCharger();
+window.__AAQ = {S: () => S, construireClasseur, valider, agreger, PJ: () => PJ};
 </script>
 <script>
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) { window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); }); }
