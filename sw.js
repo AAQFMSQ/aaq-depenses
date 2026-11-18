@@ -1,6 +1,6 @@
 // AAQ Dépenses – fonctionnement hors connexion.
 // Pour publier une mise à jour, augmentez le numéro de VERSION.
-const VERSION = "aaq-depenses-v2";
+const VERSION = "aaq-depenses-v4";
 const FICHIERS = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(FICHIERS)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(k => Promise.all(k.filter(n => n !== VERSION).map(n => caches.delete(n)))).then(() => self.clients.claim())); });
